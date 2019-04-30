@@ -4,8 +4,12 @@
 
 package it.polito.tdp.spellchecker.controller;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import it.polito.tdp.spellchecker.model.Dictionary;
+import it.polito.tdp.spellchecker.model.RichWord;
+
 
 
 import javafx.event.ActionEvent;
@@ -47,28 +51,92 @@ public class SpellCheckerController {
 
     
 	private Dictionary model;
+
+	private Integer count=0;
 //	private List<String> listaParole = new LinkedList<>();
 
 	
 	
     @FXML//alla scelta della lingua
     void doActivate(ActionEvent event) {
-		
+    		if(btnLanguage.getValue()!=null) {
+
+    			txtInsert.setDisable(false); 
+    			txtInsert.clear();
+    			btnSC.setDisable(false);
+
+
+
+
+    			lblErrors.setText("");
+    			lblTime.setText("");
+    		
+    		}
+    	
     	
     }
 
     @FXML
     void doClearText(ActionEvent event) {
-	
+    	this.txtInsert.clear();
+    	this.txtResult.clear();
+		txtResult.setDisable(true);
+		btnCT.setDisable(true);
+
+
+    	
 
     	
     }
 
     @FXML
     void doSpellCheck(ActionEvent event) {
+    	txtResult.clear();
     	
-    	
-    
+		try {
+					List<String> parList = new ArrayList<>();
+					
+		    		model.riempiDizionario(btnLanguage.getValue());
+		    		
+		    		String input[]=txtInsert.getText().replaceAll("[.,||/#!?$%\\^&\\*;:{}=\\-_'()\\[\\]\"]", "").toLowerCase().split(" ");//TODO annotare per l'esame
+					
+		    		for (String parolaInput : input) {
+						parList.add(parolaInput);
+						
+					}
+					
+		    		
+		    		
+					if(!parList.isEmpty()) {
+						
+		    			double start = System.nanoTime();
+						Map<String, RichWord> result = model.spellCheckText(parList);
+		    			double end = System.nanoTime();
+
+						for (RichWord resErr : result.values()) {
+							if(resErr.isCorrect()==false) {
+								this.txtResult.appendText(resErr.getWord()+"\n");
+								count++;
+							}
+
+							this.lblErrors.setText("the text contains " + count.toString() + " errors");
+					    	this.lblTime.setText("Spell check copleted in "+(end-start)/(1000*1000) + " seconds");
+
+						}
+					}else {
+						txtInsert.setText("Scrivere una frase");
+					}
+					
+				} catch (IOException e) {
+					txtResult.setText("scegliere una lingua");
+					e.printStackTrace();
+				}
+		
+		
+		
+		btnCT.setDisable(false);
+    	txtResult.setDisable(false);
+
     	
     }
 
@@ -98,6 +166,8 @@ public class SpellCheckerController {
 
 		lblErrors.setText("");
 		lblTime.setText("");
+		//TODO appuntarsi i metodi utili
+		
 
 		this.model = model;
 }

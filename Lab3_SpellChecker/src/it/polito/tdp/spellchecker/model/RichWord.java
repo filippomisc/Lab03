@@ -5,11 +5,13 @@ public class RichWord {
 	private String word;
 	private boolean correct;
 	
-	
-	public RichWord(String word) {
+
+
+
+	public RichWord(String word, boolean correct) {
 		super();
 		this.word = word;
-		this.correct = false;
+		this.correct = correct;
 	}
 
 
@@ -29,6 +31,15 @@ public class RichWord {
 
 	
 	
+
+
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(word);
+		return builder.toString();
+	}
 	
 
 }
